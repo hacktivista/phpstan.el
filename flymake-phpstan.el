@@ -62,8 +62,7 @@
      :command command-args
      :sentinel
      (lambda (proc _event)
-       (pcase (process-status proc)
-         (`exit
+       (when (eq 'exit (process-status proc))
           (unwind-protect
               (when (with-current-buffer source (eq proc flymake-phpstan--proc))
                 (with-current-buffer (process-buffer proc)
@@ -84,8 +83,7 @@
                    into diags
                    finally (funcall report-fn diags)))
                 (flymake-log :warning "Canceling obsolete check %s" proc))
-            (kill-buffer (process-buffer proc))))
-         (code (user-error "PHPStan error (exit status: %s)" code)))))))
+            (kill-buffer (process-buffer proc))))))))
 
 (defun flymake-phpstan (report-fn &rest _ignored-args)
   "Flymake backend for PHPStan report using REPORT-FN."
